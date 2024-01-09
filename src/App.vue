@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <Navbar></Navbar>
+    <PNavbar @Pbut="Pclicked" v-if="ShowPNavbar"/>
+    <ANavbar @Abut="Aclicked" v-if="ShowANavbar"/>
+    
+    <BNavbar v-if="ShowBNavbar"/>
 
     <v-container fluid fill-height>
       <div class="d-flex justify-center ma-16">
@@ -20,16 +23,35 @@ v-container {
 </style>
 
 <script>
-import Navbar from './components/Navbar.vue'
+import ANavbar from './components/AdminNavbar.vue'
 import Footer from './components/Footer.vue'
-
-export default {
+import PNavbar from './components/PlayerNavbar.vue'
+import BNavbar from './components/BlankNavbar.vue'
+//import SANavbar from './views/HomeView.vue'
+//import SBNavbar from './views/HomeView.vue'
+export default { 
   name: 'App',
-  components: { Navbar, Footer },
+  components: { ANavbar, Footer, PNavbar, BNavbar},
   data() {
     return {
-      //
+      ShowANavbar:false,
+      ShowPNavbar:false,
+      ShowBNavbar:true
     }
-  }
+  },
+methods: { Aclicked(check) {
+  console.log('Админка');
+  if (check==="name") {
+    this.ShowANavbar =true;
+      this.ShowPNavbar =false;
+      this.ShowBNavbar =false; }
+},
+  Pclicked() {
+  console.log('Игрок');
+    this.ShowANavbar =false;
+      this.ShowPNavbar =true;
+      this.ShowBNavbar =false;
+}
+}
 }
 </script>
