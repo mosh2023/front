@@ -1,4 +1,4 @@
 <template>
-    <p>Create a game page</p>
+<p1>page for creating a game</p1>
 </template>
   

@@ -16,7 +16,7 @@
         <br>
         <v-btn
           block
-          color="success"
+          color="indigo"
           size="large"
           type="submit"
           variant="elevated"
