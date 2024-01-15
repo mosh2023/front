@@ -5,6 +5,7 @@ import CreateGAme from '../views/CreateGame.vue'
 import Join from '../views/JoinGame.vue'
 import Createfield from '../views/CreateField.vue'
 import Choosefield from '../views/ChooseField.vue'
+import GameAdmin from '../views/AdminGame.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/choosefield',
       name: 'choose a field',
       component: Choosefield
+    },
+    {
+      path: '/game',
+      name: 'play as admin',
+      component: GameAdmin
     }
   ]
 })
