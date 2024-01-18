@@ -22,6 +22,7 @@
         <br />
         <v-btn
           block
+          color="primary"
           size="large"
           type="submit"
           variant="elevated"
