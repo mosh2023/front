@@ -36,7 +36,7 @@ data() {
 },
 methods: {
     CTANavbar() {
-      this.$emit("Abut","name");
+      this.$emit("Abut",);
     },
     CTPNavbar() {
       this.$emit("Pbut");

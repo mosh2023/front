@@ -1,4 +1,7 @@
 <template>
+
+  <BB @Pbut="Pclicked"/>
+  <BB @Abut="Aclicked"/>
   <v-toolbar app color="indigo">
     <v-toolbar-title class="text">
       <a href="/">  
@@ -9,17 +12,17 @@
     </a>
     </v-toolbar-title>
     <v-navigation>
-      <a href="/join">
+      <a href="/join" v-if="ShowJoin">
         <v-btn value="Join a game">
           <span>Join a game</span>
         </v-btn>
       </a>
-      <a href="/creategame">
+      <a href="/creategame" v-if="ShowCreateGame">
         <v-btn value="Create a game">
           <span>Create a game</span>
         </v-btn>
       </a>
-      <a href="/authorization">
+      <a href="/authorization" v-if="ShowLogin">
         <v-btn>
           <span>Sign In</span>
         </v-btn>
@@ -37,14 +40,25 @@ a {
 <script>
 export default {
   data() {
-    return {
+    return { 
+      ShowJoin:false,
+      ShowCreateGame:false,
+      ShowLogin:true
       //
     };
   },
-  methods: {
-    CTANavbar() {
-      this.$emit("Abut");
-    },
-  }
+  methods: { Aclicked(check) {
+  console.log('Админка');
+    this.ShowJoin =true;
+      this.ShowCreateGame =false;
+      this.ShowLogin =false; 
+},
+  Pclicked() {
+  console.log('Игрок');
+    this.ShowJoin =false;
+      this.ShowCreateGame =true;
+      this.ShowLogin =false;
+}
+}
 };
 </script>
