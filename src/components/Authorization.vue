@@ -18,13 +18,6 @@
           v-model="username"
         ></v-text-field>
 
-        <v-select
-          label="Account type"
-          class="mb-2"
-          :items="['user', 'admin']"
-          v-model="account"
-        ></v-select>
-
         <v-text-field
           clearable
           label="Password"
@@ -92,19 +85,20 @@ export default {
       username: "defaultName",
       password: "12345",
       verifypassword: "12345",
-      account: "user",
+      account: "admin",
       mode: "Sign Up",
     };
   },
   methods: {
     signup() {
       localStorage.clear();
-      //отправка запроса на сервер для проверки пользователя
+      //отправка запроса на сервер для проверки пользователя и определения его типа аккаунта
       //localStorage.token = "";
       this.$emit("signup", {
         username: this.username,
         password: this.password,
         account: this.account,
+        tab: "about",
       });
     },
     register() {
@@ -116,6 +110,7 @@ export default {
           username: this.username,
           password: this.password,
           account: this.account,
+          tab: "about",
         });
       } else {
         alert("the passwords are different");

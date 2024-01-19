@@ -86,6 +86,7 @@ export default {
     onSignup(data) {
       this.registered = true;
       this.account = data.account;
+      this.tab = data.tab;
     },
     logout() {
       this.tab = "about";
