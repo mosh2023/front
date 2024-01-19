@@ -9,8 +9,9 @@
 
         <v-spacer></v-spacer>
 
-        <v-tab value="two">Item Two</v-tab>
-        <v-tab value="three">Item Three</v-tab>
+        <v-tab value="two">Prizes</v-tab>
+        <v-tab value="three">Create Game</v-tab>
+        <v-tab value="five">Join Game</v-tab>
 
         <v-spacer></v-spacer>
 
@@ -27,8 +28,12 @@
             <Placeholder></Placeholder>
           </v-window-item>
 
+        <v-window-item value="five">
+          <JoinGame></JoinGame>
+        </v-window-item>
+
           <v-window-item value="three">
-            <Placeholder></Placeholder>
+            <CreateGame></CreateGame>
           </v-window-item>
 
           <v-window-item value="four">
@@ -51,11 +56,13 @@
 <script>
 import About from "./components/About.vue";
 import Authorization from "./components/Authorization.vue";
+import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
+import CreateGame from "./components/CreateGame.vue";
 
 export default {
   name: "App",
-  components: { About, Authorization, Placeholder },
+  components: { About, Authorization, Placeholder, JoinGame, CreateGame },
   data() {
     return {
       tab: null,
