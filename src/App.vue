@@ -1,7 +1,6 @@
 <template>
   <v-app>
-    <PNavbar @Pbut="Pclicked" v-if="ShowPNavbar"/>
-    <ANavbar @Abut="Aclicked" v-if="ShowANavbar"/>
+    
     
     <BNavbar v-if="ShowBNavbar"/>
 

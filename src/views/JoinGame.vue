@@ -8,6 +8,7 @@
           placeholder="Enter the invitation code"
         ></v-text-field>
         <br />
+        <a href="/game">
         <v-btn
           block
           color="indigo"
@@ -17,6 +18,7 @@
         >
           Enter
         </v-btn>
+        </a>
       </v-form>
     </v-card>
   </div>
