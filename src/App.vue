@@ -46,7 +46,7 @@
           </v-window-item>
 
           <v-window-item value="profile" v-if="registered">
-            <Placeholder></Placeholder>
+            <Profile></Profile>
           </v-window-item>
 
           <v-window-item value="registration">
@@ -70,11 +70,12 @@
 import About from "./components/About.vue";
 import Authorization from "./components/Authorization.vue";
 import Placeholder from "./components/Placeholder.vue";
+import Profile from "./components/Profile.vue";
 import JoinGame from "./components/JoinGame.vue";
 
 export default {
   name: "App",
-  components: { About, Authorization, Placeholder, JoinGame },
+  components: { About, Authorization, Placeholder, Profile, JoinGame },
   data() {
     return {
       tab: null,

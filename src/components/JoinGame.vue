@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center ma-8">
-    <v-card class="mx-auto px-6 py-8" width="500">
+    <v-card class="mx-auto px-6 py-8" width="500" variant="tonal">
       <v-form>
         <v-text-field
           clearable
