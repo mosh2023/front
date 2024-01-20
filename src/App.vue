@@ -9,13 +9,26 @@
 
         <v-spacer></v-spacer>
 
-        <v-tab value="two">Prizes</v-tab>
-        <v-tab value="three">Create Game</v-tab>
-        <v-tab value="five">Join Game</v-tab>
+        <div v-if="registered">
+          <v-tab value="joingame" v-if="account == 'user'">Join Game</v-tab>
+          <v-tab value="creategame" v-if="account == 'admin'"
+            >create Game</v-tab
+          >
+        </div>
 
         <v-spacer></v-spacer>
 
-        <v-tab value="four">Registration</v-tab>
+        <v-tab value="profile" v-if="registered">Profile</v-tab>
+        <v-tab value="registration" v-if="!registered">Log In</v-tab>
+        <v-btn
+          v-if="registered"
+          color="primary"
+          variant="flat"
+          @click="logout"
+          class="ma-1"
+        >
+          <v-icon start icon="mdi-arrow-left"></v-icon>Log out</v-btn
+        >
       </v-tabs>
 
       <v-card-text>
@@ -24,7 +37,11 @@
             <About></About>
           </v-window-item>
 
-          <v-window-item value="two">
+          <v-window-item value="joingame" v-if="account == 'user'">
+            <JoinGame></JoinGame>
+          </v-window-item>
+
+          <v-window-item value="creategame" v-if="account == 'admin'">
             <Placeholder></Placeholder>
           </v-window-item>
 
@@ -32,12 +49,12 @@
           <JoinGame></JoinGame>
         </v-window-item>
 
-          <v-window-item value="three">
+          <v-window-item value="profile" v-if="registered">
             <CreateGame></CreateGame>
           </v-window-item>
 
-          <v-window-item value="four">
-            <Authorization></Authorization>
+          <v-window-item value="registration">
+            <Authorization @signup="onSignup"></Authorization>
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -58,15 +75,29 @@ import About from "./components/About.vue";
 import Authorization from "./components/Authorization.vue";
 import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
-import CreateGame from "./components/CreateGame.vue";
+import JoinGame from "./components/JoinGame.vue";
 
 export default {
   name: "App",
-  components: { About, Authorization, Placeholder, JoinGame, CreateGame },
+  components: { About, Authorization, Placeholder, JoinGame },
   data() {
     return {
       tab: null,
+      registered: false,
+      account: "none",
     };
+  },
+  methods: {
+    onSignup(data) {
+      this.registered = true;
+      this.account = data.account;
+      this.tab = data.tab;
+    },
+    logout() {
+      this.tab = "about";
+      this.registered = false;
+      this.account = "none";
+    },
   },
 };
 </script>
