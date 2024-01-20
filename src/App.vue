@@ -42,7 +42,7 @@
           </v-window-item>
 
           <v-window-item value="creategame" v-if="account == 'admin'">
-            <Placeholder></Placeholder>
+            <CreateGame></CreateGame>
           </v-window-item>
 
         <v-window-item value="five">
@@ -75,11 +75,10 @@ import About from "./components/About.vue";
 import Authorization from "./components/Authorization.vue";
 import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
-import JoinGame from "./components/JoinGame.vue";
-
+import CreateGame from "./components/CreateGame.vue";
 export default {
   name: "App",
-  components: { About, Authorization, Placeholder, JoinGame },
+  components: { About, Authorization, Placeholder, JoinGame, CreateGame },
   data() {
     return {
       tab: null,
