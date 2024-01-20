@@ -11,9 +11,8 @@
 
         <div v-if="registered">
           <v-tab value="joingame" v-if="account == 'user'">Join Game</v-tab>
-          <v-tab value="creategame" v-if="account == 'admin'"
-            >create Game</v-tab
-          >
+          <v-tab value="creategame" v-if="account == 'admin'">create Game</v-tab>
+          <v-tab value="createfield" v-if="account == 'admin'">create Field</v-tab>
         </div>
 
         <v-spacer></v-spacer>
@@ -41,6 +40,10 @@
             <JoinGame></JoinGame>
           </v-window-item>
 
+          <v-window-item value="createfield" v-if="account == 'admin'">
+            <CreateField></CreateField>
+          </v-window-item>
+
           <v-window-item value="creategame" v-if="account == 'admin'">
             <CreateGame></CreateGame>
           </v-window-item>
@@ -50,7 +53,6 @@
         </v-window-item>
 
           <v-window-item value="profile" v-if="registered">
-            <CreateGame></CreateGame>
             <Profile></Profile>
           </v-window-item>
 
@@ -78,9 +80,11 @@ import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
 import Profile from "./components/Profile.vue";
 import CreateGame from "./components/CreateGame.vue";
+import CreateField from "./components/CreateField.vue"
+
 export default {
   name: "App",
-  components: { About, Authorization, Placeholder, Profile, JoinGame, CreateGame },
+  components: { About, Authorization, Placeholder, Profile, JoinGame, CreateGame, CreateField },
   data() {
     return {
       tab: null,
