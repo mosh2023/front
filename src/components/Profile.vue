@@ -7,7 +7,7 @@
             <v-row align="start" class="ma-3">
               <v-col>
                 <div class="d-flex justify-center">
-                  <v-avatar image="/avatar.jpg" size="400"></v-avatar>
+                  <v-avatar v-model="img" :image="img" size="400"></v-avatar>
                 </div>
               </v-col>
               <v-col>
@@ -26,6 +26,9 @@
                           variant="solo"
                           v-model="password"
                           readonly
+                          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+                          :type="show ? 'text' : 'password'"
+                          @click:append-inner="show = !show"
                         ></v-text-field>
                         <v-text-field
                           label="Account type"
@@ -33,8 +36,9 @@
                           v-model="account"
                           readonly
                         ></v-text-field>
-                      </v-card-text></div
-                  ></v-card>
+                      </v-card-text>
+                    </div>
+                  </v-card>
                 </div>
               </v-col>
             </v-row>
@@ -85,9 +89,11 @@ export default {
   components: { Award },
   data() {
     return {
-      username: "defaultName",
-      password: "12345",
+      username: "DefaultName",
+      password: "123454321",
       account: "admin",
+      img: "/public/default-avatar.png.webp",
+      show: false,
     };
   },
 };

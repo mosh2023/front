@@ -2,9 +2,9 @@
   <v-card variant="tonal" color="grey" width="200px">
     <div class="ma-5">
       <v-img :src="url"> </v-img>
-      <v-text>
+      <v-card-text>
         {{ description }}
-      </v-text>
+      </v-card-text>
     </div>
   </v-card>
 </template>
