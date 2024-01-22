@@ -1,3 +1,1 @@
-<template>
-  AAAAA БЛЯТЬ
-</template>
+<template>Не матерись!</template>
