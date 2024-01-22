@@ -20,7 +20,7 @@
                     type="text"
                     clearable
                     label="prize"
-                    placeholder="prize / prize label"
+                    placeholder="prize"
                   >
                   </v-text-field>
                   <v-text-field
@@ -30,6 +30,7 @@
                     placeholder="description"
                   >
                   </v-text-field>
+                  <br />
                   <v-btn
                     block
                     size="large"
@@ -38,6 +39,25 @@
                     @click="generateGrid"
                     >create field</v-btn
                   >
+                  <br />
+                  <v-btn
+                    block
+                    size="large"
+                    class="d-flex justify-center"
+                    color="success"
+                    @click="Save"
+                    >Save</v-btn
+                  >
+                  <br />
+                  <div v-if="sended">
+                    <v-alert
+                      color="success"
+                      icon="$success"
+                      title="The field is saved"
+                      >Your invitation code is {{ code }}
+                    </v-alert>
+                    <br />
+                  </div>
                 </v-form>
               </v-card>
             </div>
@@ -80,8 +100,11 @@ export default {
     return {
       gridSize: 0,
       grid: null,
-      prize: "",
-      description: "",
+      ceil_list: new Set(),
+      prize: null,
+      description: null,
+      sended: false,
+      code: null,
     };
   },
   watch() {},
@@ -93,17 +116,37 @@ export default {
             value: null,
             rowIndex,
             colIndex,
+            prizename: null,
+            prizedescription: null,
           }))
         );
       }
     },
     handleButtonClick(rowIndex, colIndex, cell) {
-      cell.prizename = this.prize;
-      cell.przedescription = this.description;
+      if (cell.prizename == null) {
+        cell.prizename = this.prize;
+        cell.prizedescription = this.description;
+        this.ceil_list.add(cell);
+      } else {
+        cell.prizename = null;
+        cell.prizedescription = null;
+        this.ceil_list.delete(cell);
+      }
+
       console.log(`поле: (${rowIndex}, ${colIndex}) 
                      приз: ${cell.prizename}
-                     описание приза: ${cell.przedescription}`);
+                     описание приза: ${cell.prizedescription}`);
+
       // Вы можете выполнять дополнительные действия с переданными значениями и индексами
+      // мы будем из них формировать список и отсылать на сервер
+    },
+    Save() {
+      // формирование и отправка данных на сервер
+      console.clear();
+      console.log("grid is saved: ");
+      for (let cell of this.ceil_list) console.log(cell);
+      this.code = 123;
+      this.sended = true;
     },
   },
 };
