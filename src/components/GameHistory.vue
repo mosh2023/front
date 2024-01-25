@@ -10,9 +10,20 @@
               size="large"
               type="submit"
               variant="elevated"
-              @click="redirect"
+              @click="redirect1"
             >
               Create new game
+            </v-btn>
+            <br />
+            <v-btn
+              block
+              color="success"
+              size="large"
+              type="submit"
+              variant="elevated"
+              @click="redirect2"
+            >
+              Manage prize options
             </v-btn>
           </v-card>
         </div>
@@ -34,13 +45,22 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      redirectTo: "",
+    };
   },
   methods: {
+    redirect1() {
+      this.redirectTo = "createfield";
+      this.redirect();
+    },
+    redirect2() {
+      this.redirectTo = "manageprizes";
+      this.redirect();
+    },
     redirect() {
       this.$emit("redirect", {
-        tab: "createfield",
-        visible: true,
+        tab: this.redirectTo,
       });
     },
   },

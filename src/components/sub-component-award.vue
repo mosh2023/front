@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="tonal" color="grey" width="200px">
+  <v-card variant="tonal" color="grey" width="200px" :title="title">
     <div class="ma-5">
       <v-img :src="url"> </v-img>
       <v-card-text>
@@ -13,6 +13,7 @@
 export default {
   data() {
     return {
+      title: "1Award",
       url: "/public/trophy.jpg.avif",
       description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
     };

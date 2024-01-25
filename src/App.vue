@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-card min-height="900px">
+    <v-card min-height="80vh">
       <v-tabs v-model="tab" bg-color="primary" align-tabs="center">
         <v-tab value="about">
           <span class="font-weight-light">Sea</span>
@@ -11,11 +11,14 @@
 
         <div v-if="registered">
           <v-tab value="joingame" v-if="account == 'user'">Join Game</v-tab>
-          <v-tab value="creategame" v-if="account == 'admin'">
-            create Game
+          <v-tab value="gamehistory" v-if="account == 'admin' && visible">
+            Game History
           </v-tab>
-          <v-tab value="createfield" v-if="account == 'admin' && visible">
-            create Field
+          <v-tab value="manageprizes" v-if="account == 'admin'">
+            Manage Prizes
+          </v-tab>
+          <v-tab value="creategame" v-if="account == 'admin'">
+            Create Game
           </v-tab>
         </div>
 
@@ -44,14 +47,15 @@
             <JoinGame></JoinGame>
           </v-window-item>
 
-          <v-window-item value="creategame" v-if="account == 'admin'">
-            <CreateGame @redirect="onRedirect"></CreateGame>
+          <v-window-item value="gamehistory" v-if="account == 'admin'">
+            <GameHistory @redirect="onRedirect"></GameHistory>
           </v-window-item>
 
-          <v-window-item
-            value="createfield"
-            v-if="account == 'admin' && visible"
-          >
+          <v-window-item value="manageprizes" v-if="account == 'admin'">
+            <ManagePrizes @redirect="onRedirect"></ManagePrizes>
+          </v-window-item>
+
+          <v-window-item value="creategame" v-if="account == 'admin'">
             <CreateField></CreateField>
           </v-window-item>
 
@@ -81,8 +85,9 @@ import Authorization from "./components/Authorization.vue";
 import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
 import Profile from "./components/Profile.vue";
-import CreateGame from "./components/CreateGame.vue";
+import GameHistory from "./components/GameHistory.vue";
 import CreateField from "./components/CreateField.vue";
+import ManagePrizes from "./components/ManagePrizes.vue";
 
 export default {
   name: "App",
@@ -92,8 +97,9 @@ export default {
     Placeholder,
     Profile,
     JoinGame,
-    CreateGame,
+    GameHistory,
     CreateField,
+    ManagePrizes,
   },
   data() {
     return {
@@ -122,7 +128,6 @@ export default {
     },
     onRedirect(data) {
       this.tab = data.tab;
-      this.visible = data.visible;
     },
   },
 };
