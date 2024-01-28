@@ -10,22 +10,28 @@
         <v-spacer></v-spacer>
 
         <div v-if="registered">
-          <v-tab value="joingame" v-if="account == 'user'">Join Game</v-tab>
-          <v-tab value="gamehistory" v-if="account == 'admin' && visible">
+          <v-tab value="joingame" v-if="account == 'user'">
+            <v-icon start icon="mdi-controller"></v-icon>Join Game</v-tab
+          >
+          <v-tab value="gamehistory" v-if="account == 'admin' && false">
             Game History
           </v-tab>
           <v-tab value="manageprizes" v-if="account == 'admin'">
-            Manage Prizes
+            <v-icon start icon="mdi-trophy-variant"></v-icon>Manage Prizes
           </v-tab>
           <v-tab value="creategame" v-if="account == 'admin'">
-            Create Game
+            <v-icon start icon="mdi-controller"></v-icon>Create Game
           </v-tab>
         </div>
 
         <v-spacer></v-spacer>
 
-        <v-tab value="profile" v-if="registered">Profile</v-tab>
-        <v-tab value="registration" v-if="!registered">Log In</v-tab>
+        <v-tab value="profile" v-if="registered"
+          ><v-icon start icon="mdi-account"></v-icon>Profile</v-tab
+        >
+        <v-tab value="registration" v-if="!registered">
+          <v-icon start icon="mdi-login"></v-icon>Log In</v-tab
+        >
         <v-btn
           v-if="registered"
           color="primary"
@@ -33,7 +39,7 @@
           @click="logout"
           class="ma-1"
         >
-          <v-icon start icon="mdi-arrow-left"></v-icon>Log out</v-btn
+          <v-icon start icon="mdi-logout"></v-icon>Log out</v-btn
         >
       </v-tabs>
 
@@ -71,7 +77,9 @@
     </v-card>
     <v-footer color="primary">
       <v-row justify="center">
-        <strong>©mosh2023-2024</strong>
+        <div class="d-flex justify-center ma-5">
+          <strong>©mosh2023-2024</strong>
+        </div>
       </v-row>
     </v-footer>
   </v-app>
@@ -105,15 +113,10 @@ export default {
     return {
       tab: null,
       registered: false,
-      visible: false,
       account: "none",
-      height: null,
     };
   },
-  mounted() {
-    this.height = document.documentElement.clientHeight;
-    console.log(this.height);
-  },
+  mounted() {},
   methods: {
     onSignup(data) {
       this.registered = true;
@@ -121,10 +124,9 @@ export default {
       this.tab = data.tab;
     },
     logout() {
-      this.tab = "about";
       this.registered = false;
       this.account = "none";
-      this.visible = false;
+      this.tab = "about";
     },
     onRedirect(data) {
       this.tab = data.tab;
