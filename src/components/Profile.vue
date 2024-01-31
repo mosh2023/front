@@ -18,22 +18,22 @@
                         <v-text-field
                           label="Username"
                           variant="solo"
-                          v-model="username"
+                          v-model="localData.login"
                           readonly
                         ></v-text-field>
                         <v-text-field
                           label="Password"
                           variant="solo"
-                          v-model="password"
+                          v-model="localData.password"
                           readonly
                           :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
                           :type="show ? 'text' : 'password'"
-                          @click:append-inner="show = !show"
+                          @click:append-inner="show"
                         ></v-text-field>
                         <v-text-field
                           label="Account type"
                           variant="solo"
-                          v-model="account"
+                          v-model="localData.role"
                           readonly
                         ></v-text-field>
                       </v-card-text>
@@ -87,11 +87,10 @@ import Award from "./sub-component-award.vue";
 
 export default {
   components: { Award },
+  props: ["data"],
   data() {
     return {
-      username: "DefaultName",
-      password: "123454321",
-      account: "admin",
+      localData: this.data,
       img: "/public/default-avatar.png.webp",
       show: false,
     };

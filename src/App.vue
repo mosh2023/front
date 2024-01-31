@@ -10,16 +10,16 @@
         <v-spacer></v-spacer>
 
         <div v-if="registered">
-          <v-tab value="joingame" v-if="account == 'user'">
+          <v-tab value="joingame" v-if="localData.role == 'user'">
             <v-icon start icon="mdi-controller"></v-icon>Join Game</v-tab
           >
-          <v-tab value="gamehistory" v-if="account == 'admin' && false">
+          <v-tab value="gamehistory" v-if="localData.role == 'admin' && false">
             Game History
           </v-tab>
-          <v-tab value="manageprizes" v-if="account == 'admin'">
+          <v-tab value="manageprizes" v-if="localData.role == 'admin'">
             <v-icon start icon="mdi-trophy-variant"></v-icon>Manage Prizes
           </v-tab>
-          <v-tab value="creategame" v-if="account == 'admin'">
+          <v-tab value="creategame" v-if="localData.role == 'admin'">
             <v-icon start icon="mdi-controller"></v-icon>Create Game
           </v-tab>
         </div>
@@ -49,24 +49,24 @@
             <About></About>
           </v-window-item>
 
-          <v-window-item value="joingame" v-if="account == 'user'">
+          <v-window-item value="joingame" v-if="localData.role == 'user'">
             <JoinGame></JoinGame>
           </v-window-item>
 
-          <v-window-item value="gamehistory" v-if="account == 'admin'">
+          <v-window-item value="gamehistory" v-if="localData.role == 'admin'">
             <GameHistory @redirect="onRedirect"></GameHistory>
           </v-window-item>
 
-          <v-window-item value="manageprizes" v-if="account == 'admin'">
+          <v-window-item value="manageprizes" v-if="localData.role == 'admin'">
             <ManagePrizes @redirect="onRedirect"></ManagePrizes>
           </v-window-item>
 
-          <v-window-item value="creategame" v-if="account == 'admin'">
+          <v-window-item value="creategame" v-if="localData.role == 'admin'">
             <CreateField></CreateField>
           </v-window-item>
 
           <v-window-item value="profile" v-if="registered">
-            <Profile></Profile>
+            <Profile :data="localData"></Profile>
           </v-window-item>
 
           <v-window-item value="registration">
@@ -111,22 +111,43 @@ export default {
   },
   data() {
     return {
+      //settings
       tab: null,
       registered: false,
-      account: "none",
+      //data
+      localData: {
+        id: null,
+        username: "",
+        password: "",
+        role: "none",
+      },
     };
   },
   mounted() {},
   methods: {
+    parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split(".")[1]));
+      } catch (e) {
+        return null;
+      }
+    },
     onSignup(data) {
-      this.registered = true;
-      this.account = data.account;
-      this.tab = data.tab;
+      this.registered = data.registered;
+      this.tab = "about";
+      this.localData = this.parseJwt(localStorage.token).sub;
+      this.localData.password = "**********";
     },
     logout() {
       this.registered = false;
-      this.account = "none";
       this.tab = "about";
+      this.localData = {
+        id: null,
+        username: "",
+        password: "",
+        role: "none",
+      };
+      localStorage.clear();
     },
     onRedirect(data) {
       this.tab = data.tab;

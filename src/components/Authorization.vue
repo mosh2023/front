@@ -129,7 +129,7 @@ export default {
       username: "testuser",
       password: "strongpassword",
       verifypassword: "strongpassword",
-      account: "admin",
+      account: "user",
       //api
       response: null,
       error: null,
@@ -139,6 +139,12 @@ export default {
       errorMessage: "",
       show: false,
     };
+  },
+  watch: {
+    mode() {
+      this.invalidData = false;
+      this.errorMessage = "";
+    },
   },
   methods: {
     async signup() {
@@ -156,18 +162,15 @@ export default {
           .catch((error) => (this.error = error));
 
         if (this.error != null) {
-          //console.log(this.error);
           this.invalidData = true;
           this.errorMessage = "Incorrect Username or Password";
         } else {
-          //console.log("Successful");
           this.invalidData = false;
-          localStorage.token = this.response.token;
+          localStorage.token = this.response.data.access_token;
 
           this.$emit("signup", {
-            // вообще убрать потом, нужен только токен из localstorage
-            tab: "about",
-            account: this.account, // переписать на получения акка по токену
+            // костыль, придумать как убрать
+            registered: true,
           });
         }
       } else {
@@ -196,11 +199,9 @@ export default {
             .catch((error) => (this.error = error));
 
           if (this.error != null) {
-            //console.log(this.error);
             this.invalidData = true;
             this.errorMessage = "User already exists";
           } else {
-            //console.log("Successful registration");
             this.invalidData = false;
 
             //token
@@ -214,14 +215,15 @@ export default {
               .catch((error) => (this.error = error));
 
             if (this.error != null) {
-              //console.log(this.error);
+              this.invalidData = true;
+              this.errorMessage = "Unexpected error has occured";
             } else {
-              //onsole.log("Successful", this.response);
-              localStorage.token = this.response.token;
+              this.invalidData = false;
+              localStorage.token = this.response.data.access_token;
 
               this.$emit("signup", {
-                tab: "about",
-                account: this.account,
+                // костыль, придумать как убрать
+                registered: true,
               });
             }
           }
