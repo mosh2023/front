@@ -150,6 +150,7 @@ export default {
     async signup() {
       if (this.password != null && this.username != null) {
         this.invalidData = false;
+        this.error = null;
 
         let data = new URLSearchParams();
         data.append("username", this.username);
@@ -160,10 +161,14 @@ export default {
           .post("http://localhost:5002/v1/token", data)
           .then((response) => (this.response = response))
           .catch((error) => (this.error = error));
-
+          
         if (this.error != null) {
           this.invalidData = true;
-          this.errorMessage = "Incorrect Username or Password";
+          if (this.error.message == "Request failed with status code 401") {
+            this.errorMessage = "Unauthorized user";
+          } else {
+            this.errorMessage = "Incorrect Username or Password";
+          }
         } else {
           this.invalidData = false;
           localStorage.token = this.response.data.access_token;
@@ -186,6 +191,7 @@ export default {
       ) {
         if (this.password == this.verifypassword) {
           this.invalidData = false;
+          this.error = null;
 
           //registration
           localStorage.clear();

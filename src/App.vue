@@ -54,11 +54,11 @@
           </v-window-item>
 
           <v-window-item value="gamehistory" v-if="localData.role == 'admin'">
-            <GameHistory @redirect="onRedirect"></GameHistory>
+            <GameHistory></GameHistory>
           </v-window-item>
 
           <v-window-item value="manageprizes" v-if="localData.role == 'admin'">
-            <ManagePrizes @redirect="onRedirect"></ManagePrizes>
+            <ManagePrizes :data="localData"></ManagePrizes>
           </v-window-item>
 
           <v-window-item value="creategame" v-if="localData.role == 'admin'">

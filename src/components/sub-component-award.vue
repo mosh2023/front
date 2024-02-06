@@ -1,6 +1,6 @@
 <template>
   <v-card variant="tonal" color="grey" width="200px" :title="title">
-    <div class="ma-5">
+    <div class="ma-1">
       <v-img :src="url"> </v-img>
       <v-card-text>
         {{ description }}

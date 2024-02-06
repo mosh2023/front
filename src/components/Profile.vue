@@ -28,7 +28,7 @@
                           readonly
                           :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
                           :type="show ? 'text' : 'password'"
-                          @click:append-inner="show"
+                          @click:append-inner="null"
                         ></v-text-field>
                         <v-text-field
                           label="Account type"
