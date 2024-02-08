@@ -24,12 +24,12 @@
           clearable
           label="Password"
           placeholder="Enter your password"
-          :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           v-model="password"
           :rules="[() => !!password || 'This field is required']"
-          :type="show1 ? 'text' : 'password'"
+          :type="show ? 'text' : 'password'"
           required
-          @click:append-inner="show1 = !show1"
+          @click:append-inner="show = !show"
         ></v-text-field>
         <br />
 
@@ -38,7 +38,7 @@
             color="warning"
             icon="$warning"
             title="Incorrect Data"
-            text="You need to fill in all fields"
+            :text="errorMessage"
           ></v-alert>
           <br />
         </div>
@@ -76,10 +76,10 @@
           placeholder="Enter your password"
           v-model="password"
           :rules="[() => !!password || 'This field is required']"
-          :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show1 ? 'text' : 'password'"
+          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show ? 'text' : 'password'"
           required
-          @click:append-inner="show1 = !show1"
+          @click:append-inner="show = !show"
         ></v-text-field>
 
         <v-text-field
@@ -88,10 +88,10 @@
           placeholder="Verify your password"
           v-model="verifypassword"
           :rules="[() => !!verifypassword || 'This field is required']"
-          :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show1 ? 'text' : 'password'"
+          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show ? 'text' : 'password'"
           required
-          @click:append-inner="show1 = !show1"
+          @click:append-inner="show = !show"
         ></v-text-field>
         <br />
 
@@ -100,17 +100,7 @@
             color="warning"
             icon="$warning"
             title="Incorrect Data"
-            text="You need to fill in all fields"
-          ></v-alert>
-          <br />
-        </div>
-
-        <div v-if="PasswordDismatch">
-          <v-alert
-            color="warning"
-            icon="$warning"
-            title="Warning"
-            text="Passwords are different"
+            :text="errorMessage"
           ></v-alert>
           <br />
         </div>
@@ -130,63 +120,126 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      username: "defaultName",
-      password: "12345",
-      verifypassword: "12345",
-      account: "admin",
+      //data
+      username: "testuser",
+      password: "strongpassword",
+      verifypassword: "strongpassword",
+      account: "user",
+      //api
+      response: null,
+      error: null,
+      //settings
       mode: "Sign Up",
       invalidData: false,
-      PasswordDismatch: false,
-      show1: false,
+      errorMessage: "",
+      show: false,
     };
   },
+  watch: {
+    mode() {
+      this.invalidData = false;
+      this.errorMessage = "";
+    },
+  },
   methods: {
-    signup() {
+    async signup() {
       if (this.password != null && this.username != null) {
         this.invalidData = false;
+        this.error = null;
 
-        //отправка запроса на сервер для проверки пользователя и определения его типа аккаунта
-        //localStorage.clear();
-        //localStorage.token = "";
+        let data = new URLSearchParams();
+        data.append("username", this.username);
+        data.append("password", this.password);
 
-        this.$emit("signup", {
-          username: this.username,
-          password: this.password,
-          account: this.account,
-          tab: "about",
-        });
+        localStorage.clear();
+        await axios
+          .post("http://localhost:5002/v1/token", data)
+          .then((response) => (this.response = response))
+          .catch((error) => (this.error = error));
+          
+        if (this.error != null) {
+          this.invalidData = true;
+          if (this.error.message == "Request failed with status code 401") {
+            this.errorMessage = "Unauthorized user";
+          } else {
+            this.errorMessage = "Incorrect Username or Password";
+          }
+        } else {
+          this.invalidData = false;
+          localStorage.token = this.response.data.access_token;
+
+          this.$emit("signup", {
+            // костыль, придумать как убрать
+            registered: true,
+          });
+        }
       } else {
         this.invalidData = true;
+        this.errorMessage = "You need to fill in all fields";
       }
     },
-    register() {
+    async register() {
       if (
         this.password != null &&
         this.username != null &&
         this.verifypassword != null
       ) {
-        this.invalidData = false;
         if (this.password == this.verifypassword) {
-          this.PasswordDismatch = false;
+          this.invalidData = false;
+          this.error = null;
 
-          //отправка запроса на сервер для проверки пользователя и определения его типа аккаунта
-          //localStorage.clear();
-          //localStorage.token = "";
+          //registration
+          localStorage.clear();
+          await axios
+            .post("http://localhost:5002/v1/register", {
+              login: this.username,
+              password: this.password,
+              role: this.account,
+            })
+            .then((response) => (this.response = response))
+            .catch((error) => (this.error = error));
 
-          this.$emit("signup", {
-            username: this.username,
-            password: this.password,
-            account: this.account,
-            tab: "about",
-          });
+          if (this.error != null) {
+            this.invalidData = true;
+            this.errorMessage = "User already exists";
+          } else {
+            this.invalidData = false;
+
+            //token
+            let data = new URLSearchParams();
+            data.append("username", this.username);
+            data.append("password", this.password);
+
+            await axios
+              .post("http://localhost:5002/v1/token", data)
+              .then((response) => (this.response = response))
+              .catch((error) => (this.error = error));
+
+            if (this.error != null) {
+              this.invalidData = true;
+              this.errorMessage = "Unexpected error has occured";
+            } else {
+              this.invalidData = false;
+              localStorage.token = this.response.data.access_token;
+
+              this.$emit("signup", {
+                // костыль, придумать как убрать
+                registered: true,
+              });
+            }
+          }
         } else {
-          this.PasswordDismatch = true;
+          this.invalidData = true;
+          this.errorMessage = "Passwords are different";
         }
       } else {
         this.invalidData = true;
+        this.errorMessage = "You need to fill in all fields";
       }
     },
   },

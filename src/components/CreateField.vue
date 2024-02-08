@@ -15,21 +15,14 @@
                     placeholder="number from 1 to 10"
                   >
                   </v-text-field>
-                  <v-text-field
+                  <!--доп настройки-->
+                  <br />
+                  <v-select
                     v-model="prize"
-                    type="text"
-                    clearable
-                    label="prize"
-                    placeholder="prize"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="description"
-                    clearable
-                    label="prize description"
-                    placeholder="description"
-                  >
-                  </v-text-field>
+                    :items="prizes"
+                    label="prizes"
+                    required
+                  ></v-select>
                   <br />
                   <v-btn
                     block
@@ -101,10 +94,12 @@ export default {
       gridSize: 0,
       grid: null,
       ceil_list: new Set(),
-      prize: null,
-      description: null,
+      prize: "",
+      description: "",
       sended: false,
       code: null,
+      prizes: ["Default Prize"],
+      prize: "",
     };
   },
   watch() {},

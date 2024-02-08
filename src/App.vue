@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-card min-height="900px">
+    <v-card min-height="80vh">
       <v-tabs v-model="tab" bg-color="primary" align-tabs="center">
         <v-tab value="about">
           <span class="font-weight-light">Sea</span>
@@ -10,19 +10,28 @@
         <v-spacer></v-spacer>
 
         <div v-if="registered">
-          <v-tab value="joingame" v-if="account == 'user'">Join Game</v-tab>
-          <v-tab value="creategame" v-if="account == 'admin'">
-            create Game
+          <v-tab value="joingame" v-if="localData.role == 'user'">
+            <v-icon start icon="mdi-controller"></v-icon>Join Game</v-tab
+          >
+          <v-tab value="gamehistory" v-if="localData.role == 'admin' && false">
+            Game History
           </v-tab>
-          <v-tab value="createfield" v-if="account == 'admin' && visible">
-            create Field
+          <v-tab value="manageprizes" v-if="localData.role == 'admin'">
+            <v-icon start icon="mdi-trophy-variant"></v-icon>Manage Prizes
+          </v-tab>
+          <v-tab value="creategame" v-if="localData.role == 'admin'">
+            <v-icon start icon="mdi-controller"></v-icon>Create Game
           </v-tab>
         </div>
 
         <v-spacer></v-spacer>
 
-        <v-tab value="profile" v-if="registered">Profile</v-tab>
-        <v-tab value="registration" v-if="!registered">Log In</v-tab>
+        <v-tab value="profile" v-if="registered"
+          ><v-icon start icon="mdi-account"></v-icon>Profile</v-tab
+        >
+        <v-tab value="registration" v-if="!registered">
+          <v-icon start icon="mdi-login"></v-icon>Log In</v-tab
+        >
         <v-btn
           v-if="registered"
           color="primary"
@@ -30,7 +39,7 @@
           @click="logout"
           class="ma-1"
         >
-          <v-icon start icon="mdi-arrow-left"></v-icon>Log out</v-btn
+          <v-icon start icon="mdi-logout"></v-icon>Log out</v-btn
         >
       </v-tabs>
 
@@ -40,23 +49,24 @@
             <About></About>
           </v-window-item>
 
-          <v-window-item value="joingame" v-if="account == 'user'">
+          <v-window-item value="joingame" v-if="localData.role == 'user'">
             <JoinGame></JoinGame>
           </v-window-item>
 
-          <v-window-item value="creategame" v-if="account == 'admin'">
-            <CreateGame @redirect="onRedirect"></CreateGame>
+          <v-window-item value="gamehistory" v-if="localData.role == 'admin'">
+            <GameHistory></GameHistory>
           </v-window-item>
 
-          <v-window-item
-            value="createfield"
-            v-if="account == 'admin' && visible"
-          >
+          <v-window-item value="manageprizes" v-if="localData.role == 'admin'">
+            <ManagePrizes :data="localData"></ManagePrizes>
+          </v-window-item>
+
+          <v-window-item value="creategame" v-if="localData.role == 'admin'">
             <CreateField></CreateField>
           </v-window-item>
 
           <v-window-item value="profile" v-if="registered">
-            <Profile></Profile>
+            <Profile :data="localData"></Profile>
           </v-window-item>
 
           <v-window-item value="registration">
@@ -67,7 +77,9 @@
     </v-card>
     <v-footer color="primary">
       <v-row justify="center">
-        <strong>©mosh2023-2024</strong>
+        <div class="d-flex justify-center ma-5">
+          <strong>©mosh2023-2024</strong>
+        </div>
       </v-row>
     </v-footer>
   </v-app>
@@ -81,8 +93,9 @@ import Authorization from "./components/Authorization.vue";
 import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
 import Profile from "./components/Profile.vue";
-import CreateGame from "./components/CreateGame.vue";
+import GameHistory from "./components/GameHistory.vue";
 import CreateField from "./components/CreateField.vue";
+import ManagePrizes from "./components/ManagePrizes.vue";
 
 export default {
   name: "App",
@@ -92,37 +105,52 @@ export default {
     Placeholder,
     Profile,
     JoinGame,
-    CreateGame,
+    GameHistory,
     CreateField,
+    ManagePrizes,
   },
   data() {
     return {
+      //settings
       tab: null,
       registered: false,
-      visible: false,
-      account: "none",
-      height: null,
+      //data
+      localData: {
+        id: null,
+        username: "",
+        password: "",
+        role: "none",
+      },
     };
   },
-  mounted() {
-    this.height = document.documentElement.clientHeight;
-    console.log(this.height);
-  },
+  mounted() {},
   methods: {
+    parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split(".")[1]));
+      } catch (e) {
+        return null;
+      }
+    },
     onSignup(data) {
-      this.registered = true;
-      this.account = data.account;
-      this.tab = data.tab;
+      this.registered = data.registered;
+      this.tab = "about";
+      this.localData = this.parseJwt(localStorage.token).sub;
+      this.localData.password = "**********";
     },
     logout() {
-      this.tab = "about";
       this.registered = false;
-      this.account = "none";
-      this.visible = false;
+      this.tab = "about";
+      this.localData = {
+        id: null,
+        username: "",
+        password: "",
+        role: "none",
+      };
+      localStorage.clear();
     },
     onRedirect(data) {
       this.tab = data.tab;
-      this.visible = data.visible;
     },
   },
 };
