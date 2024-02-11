@@ -114,26 +114,15 @@ export default {
       error: null,
       response: null,
       //prizes
-      prizes: [
-        /*
-        {
-          name: "AWARD1",
-          description: "award1",
-          url: "../../public/trophy.jpg.avif",
-          id: 0,
-        },
-        {
-          name: "Cruiser",
-          description: "cruiser",
-          url: "../../public/cruiser.png",
-          id: 0,
-        },*/
-      ],
+      prizes: [],
     };
   },
   watch: {
     tab() {
-      if (this.tab == "manageprizes") this.getPrizes();
+      if (this.tab == "manageprizes") {
+        this.prizes.splice(0, this.prizes.length);
+        this.getPrizes();
+      }
     },
   },
   methods: {
@@ -161,9 +150,11 @@ export default {
       if (this.error != null) {
         console.log("An error has occured on getPrizes");
       } else {
-        if (this.response.data.length > 0) {
-          this.prizes = [];
-          this.prizes = this.response.data;
+        //this.prizes = this.response.data;
+        for (let i of this.response.data) {
+          if (i.icon_link != null)
+            i.icon_link = "http://localhost:" + i.icon_link.slice(10);
+          this.prizes[this.prizes.length] = i;
         }
       }
     },
@@ -213,18 +204,16 @@ export default {
           this.icon = "$success";
           this.msg = "New prize is created";
 
-          this.prizes[this.prizes.length] = {
-            title: this.prize_name,
-            description: this.prize_description,
-            url: null,
-            id: id,
-          };
+          this.prizes.splice(0, this.prizes.length);
+          this.getPrizes();
         }
       }
     },
     async DeletePrize(index) {
       this.response = null;
       this.error = null;
+
+      console.log(index, this.prizes[index].id);
 
       let token = localStorage.token;
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -241,7 +230,8 @@ export default {
         this.icon = "$warning";
         this.msg = "An error has occured";
       } else {
-        this.prizes.splice(index, 1);
+        this.prizes.splice(0, this.prizes.length);
+        this.getPrizes();
       }
     },
   },

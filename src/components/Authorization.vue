@@ -6,11 +6,11 @@
           color="primary"
           v-model="mode"
           true-value="Register"
-          false-value="Sign Up"
+          false-value="Sign In"
           :label="`${mode}`"
         ></v-switch>
       </div>
-      <v-form @submit.prevent="signup" v-if="mode == 'Sign Up'">
+      <v-form @submit.prevent="signup" v-if="mode == 'Sign In'">
         <v-text-field
           class="mb-2"
           clearable
@@ -50,7 +50,7 @@
           type="submit"
           variant="elevated"
         >
-          Sign Up
+          Sign In
         </v-btn>
       </v-form>
 
@@ -134,7 +134,7 @@ export default {
       response: null,
       error: null,
       //settings
-      mode: "Sign Up",
+      mode: "Sign In",
       invalidData: false,
       errorMessage: "",
       show: false,
