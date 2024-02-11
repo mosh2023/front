@@ -50,28 +50,7 @@
             <v-row class="mb-1">
               <v-col>
                 <div class="d-flex justify-center">
-                  <Award></Award>
-                </div>
-              </v-col>
-
-              <v-col>
-                <div class="d-flex justify-center">
-                  <Award></Award>
-                </div>
-              </v-col>
-              <v-col>
-                <div class="d-flex justify-center">
-                  <Award></Award>
-                </div>
-              </v-col>
-              <v-col>
-                <div class="d-flex justify-center">
-                  <Award></Award>
-                </div>
-              </v-col>
-              <v-col>
-                <div class="d-flex justify-center">
-                  <Award></Award>
+                  <!--<Award></Award>-->
                 </div>
               </v-col>
             </v-row>

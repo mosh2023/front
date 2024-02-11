@@ -12,11 +12,25 @@
                     type="number"
                     clearable
                     label="number of rows/columns"
-                    placeholder="number from 1 to 10"
+                    hint="number from 1 to 10"
+                    required
                   >
                   </v-text-field>
-                  <!--доп настройки-->
                   <br />
+                  <v-btn
+                    block
+                    size="large"
+                    class="d-flex justify-center"
+                    color="primary"
+                    @click="generateGrid"
+                    >create field
+                  </v-btn>
+                </v-form>
+
+                <br />
+                <br />
+
+                <v-form>
                   <v-select
                     v-model="prize"
                     :items="prizes"
@@ -29,29 +43,48 @@
                     size="large"
                     class="d-flex justify-center"
                     color="primary"
-                    @click="generateGrid"
-                    >create field</v-btn
+                    @click="CreateBoat"
+                    >Create boat</v-btn
                   >
+
                   <br />
-                  <v-btn
-                    block
-                    size="large"
-                    class="d-flex justify-center"
-                    color="success"
-                    @click="Save"
-                    >Save</v-btn
-                  >
                   <br />
-                  <div v-if="sended">
-                    <v-alert
-                      color="success"
-                      icon="$success"
-                      title="The field is saved"
-                      >Your invitation code is {{ code }}
-                    </v-alert>
-                    <br />
-                  </div>
+
+                  <v-row align="start">
+                    <div
+                      class="d-flex justify-center"
+                      v-for="(item, index) in boats"
+                      v-bind:key="index"
+                    >
+                      <v-col class="mb-1">
+                        <Boat @click="select(index)" :data="item"></Boat>
+                      </v-col>
+                    </div>
+                  </v-row>
                 </v-form>
+
+                <br />
+                <br />
+
+                <v-btn
+                  block
+                  size="large"
+                  class="d-flex justify-center"
+                  color="success"
+                  @click="Save"
+                  >Save</v-btn
+                >
+
+                <br />
+                <div v-if="sended">
+                  <v-alert
+                    color="success"
+                    icon="$success"
+                    title="The field is saved"
+                    >Your invitation code is {{ code }}
+                  </v-alert>
+                  <br />
+                </div>
               </v-card>
             </div>
           </v-col>
@@ -65,11 +98,14 @@
                   class="d-flex"
                 >
                   <div v-for="(cell, colIndex) in row" :key="colIndex">
-                    <v-btn
-                      class="mx-auto px-6 py-8"
+                    <v-card
+                      variant="outlined"
+                      :width="width_height"
+                      :height="width_height"
                       @click="handleButtonClick(rowIndex, colIndex, cell)"
-                      :class="{ 'red-button': cell.prizename != null }"
-                    ></v-btn>
+                      ><v-img :src="cell.url" v-if="cell.prizename != null">
+                      </v-img>
+                    </v-card>
                   </div>
                 </div>
               </v-card>
@@ -81,29 +117,53 @@
   </v-container>
 </template>
 
-<style>
-.red-button {
-  background-color: red;
-}
-</style>
-
 <script>
+import axios from "axios";
+import Boat from "./sub-component-boat.vue";
+
 export default {
+  components: { Boat },
   data() {
     return {
-      gridSize: 0,
+      //field
+      gridSize: 4,
       grid: null,
       ceil_list: new Set(),
-      prize: "",
-      description: "",
+      width_height: "100px",
+      //prizes
+      prizes: ["AWARD1", "Cruiser"],
+      prize: null,
+      boats: [
+        {
+          title: "AWARD1",
+          description: "award1",
+          url: "../../public/trophy.jpg.avif",
+          selected: false,
+          id: 0,
+        },
+        {
+          title: "Cruiser",
+          description: "cruiser",
+          url: "../../public/cruiser.png",
+          selected: false,
+          id: 0,
+        },
+      ],
+      idx: null,
+      //save
       sended: false,
       code: null,
-      prizes: ["Default Prize"],
-      prize: "",
     };
   },
   watch() {},
   methods: {
+    parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split(".")[1]));
+      } catch (e) {
+        return null;
+      }
+    },
     generateGrid() {
       if (this.gridSize >= 1 && this.gridSize <= 10) {
         this.grid = Array.from({ length: this.gridSize }, (_, rowIndex) =>
@@ -113,35 +173,64 @@ export default {
             colIndex,
             prizename: null,
             prizedescription: null,
+            url: null,
           }))
         );
       }
     },
     handleButtonClick(rowIndex, colIndex, cell) {
-      if (cell.prizename == null) {
-        cell.prizename = this.prize;
-        cell.prizedescription = this.description;
+      if (cell.prizename == null && this.idx != null) {
+        cell.prizename = this.boats[this.idx].title;
+        cell.prizedescription = this.boats[this.idx].description;
+        cell.url = this.boats[this.idx].url;
         this.ceil_list.add(cell);
       } else {
         cell.prizename = null;
         cell.prizedescription = null;
+        cell.url = null;
         this.ceil_list.delete(cell);
       }
-
-      console.log(`поле: (${rowIndex}, ${colIndex}) 
+      /*
+      console.log(`поле: (${rowIndex}, ${colIndex})
                      приз: ${cell.prizename}
-                     описание приза: ${cell.prizedescription}`);
+                     описание приза: ${cell.prizedescription}`);*/
+    },
+    async CreateBoat() {
+      if (this.prize != null) {
+        this.error = null;
 
-      // Вы можете выполнять дополнительные действия с переданными значениями и индексами
-      // мы будем из них формировать список и отсылать на сервер
+        await axios
+          .post("http://localhost:5002/v1/game/boats", {
+            prize_id: 0,
+          })
+          .then((response) => (this.response = response))
+          .catch((error) => (this.error = error));
+
+        if (this.error != null) {
+          console.log(this.error);
+        } else {
+        }
+      }
+    },
+    select(index) {
+      this.boats[index].selected = !this.boats[index].selected;
+      if (this.boats[index].selected) {
+        this.idx = index;
+      } else {
+        this.idx = null;
+      }
+
+      for (let i = 0; i < this.boats.length; i++)
+        if (i != index) this.boats[i].selected = false;
     },
     Save() {
-      // формирование и отправка данных на сервер
-      console.clear();
       console.log("grid is saved: ");
       for (let cell of this.ceil_list) console.log(cell);
-      this.code = 123;
+
       this.sended = true;
+    },
+    onfocus() {
+      console.log("focus");
     },
   },
 };

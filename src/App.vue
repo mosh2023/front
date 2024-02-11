@@ -58,7 +58,7 @@
           </v-window-item>
 
           <v-window-item value="manageprizes" v-if="localData.role == 'admin'">
-            <ManagePrizes :data="localData"></ManagePrizes>
+            <ManagePrizes :tab="tab"></ManagePrizes>
           </v-window-item>
 
           <v-window-item value="creategame" v-if="localData.role == 'admin'">
@@ -112,18 +112,19 @@ export default {
   data() {
     return {
       //settings
-      tab: null,
+      tab: "About",
       registered: false,
       //data
       localData: {
-        id: null,
-        username: "",
-        password: "",
-        role: "none",
+        role: null,
       },
     };
   },
-  mounted() {},
+  watch: {
+    tab() {
+      //console.log(this.tab);
+    },
+  },
   methods: {
     parseJwt(token) {
       try {
@@ -132,20 +133,16 @@ export default {
         return null;
       }
     },
-    onSignup(data) {
-      this.registered = data.registered;
+    onSignup() {
+      this.registered = true;
       this.tab = "about";
       this.localData = this.parseJwt(localStorage.token).sub;
-      this.localData.password = "**********";
     },
     logout() {
       this.registered = false;
       this.tab = "about";
       this.localData = {
-        id: null,
-        username: "",
-        password: "",
-        role: "none",
+        role: null,
       };
       localStorage.clear();
     },
