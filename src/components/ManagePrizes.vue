@@ -75,8 +75,20 @@
                               class="d-flex justify-center"
                               color="red"
                               @click="DeletePrize(index)"
-                              >Delete</v-btn
+                              ><v-icon start icon="mdi-delete"></v-icon>
+                              Delete
+                            </v-btn>
+                            <br />
+                            <v-btn
+                              block
+                              size="large"
+                              class="d-flex justify-center"
+                              color="grey"
+                              @click="null"
                             >
+                              <v-icon start icon="mdi-cog"></v-icon>
+                              Settings
+                            </v-btn>
                           </div>
                         </v-card>
                       </div>

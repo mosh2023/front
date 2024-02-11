@@ -1,9 +1,9 @@
 <template>
-  <v-card variant="tonal" color="grey" width="150px" :title="title">
+  <v-card variant="flat" color="white" width="150px" :title="this.data.name">
     <div class="ma-1">
-      <v-img :src="url"> </v-img>
+      <v-img :src="this.data.icon_link"> </v-img>
       <v-card-text>
-        {{ description }}
+        {{ this.data.description }}
       </v-card-text>
       <br />
     </div>
@@ -14,15 +14,7 @@
 export default {
   props: ["data"],
   data() {
-    return {
-      title: this.data.name,
-      url: this.data.icon_link,
-      description: this.data.description,
-      id: this.data.id,
-      admin_id: this.data.admin_id,
-      user_id: this.data.user_id,
-      dt_won: this.data.dt_won,
-    };
+    return {};
   },
 };
 </script>

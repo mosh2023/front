@@ -8,11 +8,27 @@
               <v-card class="mx-auto px-6 py-8" width="90%" variant="elevated">
                 <v-form>
                   <v-text-field
+                    v-model="gameName"
+                    label="Name of the game"
+                    variant="outlined"
+                    clearable
+                    required
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="gameDescription"
+                    label="Description of the game"
+                    variant="outlined"
+                    clearable
+                    required
+                  >
+                  </v-text-field>
+                  <v-text-field
                     v-model="gridSize"
                     type="number"
-                    clearable
                     label="number of rows/columns"
                     hint="number from 1 to 10"
+                    clearable
                     required
                   >
                   </v-text-field>
@@ -33,7 +49,7 @@
                 <v-form>
                   <v-select
                     v-model="prize"
-                    :items="prizes"
+                    :items="prize_names"
                     label="prizes"
                     required
                   ></v-select>
@@ -56,7 +72,7 @@
                       v-for="(item, index) in boats"
                       v-bind:key="index"
                     >
-                      <v-col class="mb-1">
+                      <v-col class="mb-1" v-if="!item.used">
                         <Boat @click="select(index)" :data="item"></Boat>
                       </v-col>
                     </div>
@@ -103,8 +119,7 @@
                       :width="width_height"
                       :height="width_height"
                       @click="handleButtonClick(rowIndex, colIndex, cell)"
-                      ><v-img :src="cell.url" v-if="cell.prizename != null">
-                      </v-img>
+                      ><v-img :src="cell.url" v-if="cell.url != null"> </v-img>
                     </v-card>
                   </div>
                 </div>
@@ -123,39 +138,51 @@ import Boat from "./sub-component-boat.vue";
 
 export default {
   components: { Boat },
+  props: ["tab"],
   data() {
     return {
       //field
+      gameName: "newgame",
+      gameDescription: "newrules",
       gridSize: 4,
       grid: null,
       ceil_list: new Set(),
       width_height: "100px",
       //prizes
-      prizes: ["AWARD1", "Cruiser"],
+      prize_names: [],
+      prizes: [],
       prize: null,
+      idx: null,
       boats: [
         {
-          title: "AWARD1",
+          name: "AWARD1",
           description: "award1",
-          url: "../../public/trophy.jpg.avif",
+          icon_link: "../../public/trophy.jpg.avif",
           selected: false,
+          used: false,
           id: 0,
         },
         {
-          title: "Cruiser",
+          name: "Cruiser",
           description: "cruiser",
-          url: "../../public/cruiser.png",
+          icon_link: "../../public/cruiser.png",
           selected: false,
+          used: false,
           id: 0,
         },
       ],
-      idx: null,
       //save
       sended: false,
       code: null,
     };
   },
-  watch() {},
+  watch: {
+    tab() {
+      if (this.tab == "creategame") {
+        this.getPrizes();
+      }
+    },
+  },
   methods: {
     parseJwt(token) {
       try {
@@ -164,44 +191,88 @@ export default {
         return null;
       }
     },
+    async getPrizes() {
+      this.response = null;
+      this.error = null;
+
+      let token = localStorage.token;
+      let admin_id = this.parseJwt(token).sub.id;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      let link = "http://localhost:5002/v1/prize/admin/" + admin_id;
+
+      await axios
+        .get(link)
+        .then((response) => (this.response = response))
+        .catch((error) => (this.error = error));
+
+      if (this.error != null) {
+        console.log("An error has occured on getPrizes");
+      } else {
+        //this.prizes = this.response.data;
+        this.prize_names.splice(0, this.prize_names.length);
+        this.prizes.splice(0, this.prizes.length);
+
+        for (let i of this.response.data) {
+          this.prize_names[this.prize_names.length] = i.name;
+
+          if (i.icon_link != null)
+            i.icon_link = "http://localhost:" + i.icon_link.slice(10);
+          else {
+            i.icon_link = "../../public/cruiser.png";
+          }
+          this.prizes[this.prizes.length] = i;
+        }
+      }
+    },
     generateGrid() {
       if (this.gridSize >= 1 && this.gridSize <= 10) {
         this.grid = Array.from({ length: this.gridSize }, (_, rowIndex) =>
           Array.from({ length: this.gridSize }, (_, colIndex) => ({
-            value: null,
             rowIndex,
             colIndex,
-            prizename: null,
-            prizedescription: null,
             url: null,
+            boat_idx: null,
           }))
         );
       }
     },
     handleButtonClick(rowIndex, colIndex, cell) {
-      if (cell.prizename == null && this.idx != null) {
-        cell.prizename = this.boats[this.idx].title;
-        cell.prizedescription = this.boats[this.idx].description;
-        cell.url = this.boats[this.idx].url;
+      if (cell.boat_idx == null && this.idx != null) {
+        cell.url = this.boats[this.idx].icon_link;
+        cell.boat_idx = this.idx;
+
+        this.boats[this.idx].used = true;
+        this.idx = null;
         this.ceil_list.add(cell);
       } else {
-        cell.prizename = null;
-        cell.prizedescription = null;
+        if (cell.boat_idx != null) {
+          this.boats[cell.boat_idx].used = false;
+
+          for (let i = 0; i < this.boats.length; i++)
+            this.boats[i].selected = false;
+        }
         cell.url = null;
+        cell.boat_idx = null;
+
         this.ceil_list.delete(cell);
       }
-      /*
-      console.log(`поле: (${rowIndex}, ${colIndex})
-                     приз: ${cell.prizename}
-                     описание приза: ${cell.prizedescription}`);*/
+    },
+    equalName(item) {
+      return item.name === this.prize;
     },
     async CreateBoat() {
       if (this.prize != null) {
         this.error = null;
+        this.response = null;
+
+        let selectedPrize = this.prizes.find(this.equalName);
+
+        let token = localStorage.token;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         await axios
-          .post("http://localhost:5002/v1/game/boats", {
-            prize_id: 0,
+          .post("http://localhost:5002/v1/game/boat", {
+            prize_id: selectedPrize.id,
           })
           .then((response) => (this.response = response))
           .catch((error) => (this.error = error));
@@ -209,12 +280,21 @@ export default {
         if (this.error != null) {
           console.log(this.error);
         } else {
+          this.boats[this.boats.length] = {
+            name: selectedPrize.name,
+            description: selectedPrize.description,
+            icon_link: selectedPrize.icon_link,
+            selected: false,
+            used: false,
+            prize_id: selectedPrize.id,
+            id: this.response.data.id,
+          };
         }
       }
     },
     select(index) {
       this.boats[index].selected = !this.boats[index].selected;
-      if (this.boats[index].selected) {
+      if (this.boats[index].selected && this.boats[index].used == false) {
         this.idx = index;
       } else {
         this.idx = null;
@@ -223,14 +303,53 @@ export default {
       for (let i = 0; i < this.boats.length; i++)
         if (i != index) this.boats[i].selected = false;
     },
-    Save() {
+    async Save() {
       console.log("grid is saved: ");
       for (let cell of this.ceil_list) console.log(cell);
 
-      this.sended = true;
-    },
-    onfocus() {
-      console.log("focus");
+      this.error = null;
+      this.response = null;
+
+      let token = localStorage.token;
+      let admin_id = this.parseJwt(token).sub.id;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      await axios
+        .post("http://localhost:5002/v1/game", {
+          name: this.gameName,
+          description: this.gameDescription,
+          board_size: this.gridSize,
+          admin_id: admin_id,
+        })
+        .then((response) => (this.response = response))
+        .catch((error) => (this.error = error));
+
+      if (this.error != null) {
+        console.log("An errror has occured");
+      } else {
+        let code = this.response.data.key;
+        let id = this.response.data.id;
+
+        for (let cell of this.ceil_list) {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          await axios
+            .put("http://localhost:5002/v1/game/boat/place", {
+              boat_id: this.boats[cell.boat_idx].id,
+              game_id: id,
+              x: cell.colIndex,
+              y: cell.rowIndex,
+            })
+            .then((response) => (this.response = response))
+            .catch((error) => (this.error = error));
+        }
+
+        if (this.error != null) {
+          console.log("An errror has occured");
+        } else {
+          this.sended = true;
+          this.code = code;
+        }
+      }
     },
   },
 };

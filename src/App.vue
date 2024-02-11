@@ -62,7 +62,7 @@
           </v-window-item>
 
           <v-window-item value="creategame" v-if="localData.role == 'admin'">
-            <CreateField></CreateField>
+            <CreateField :tab="tab"></CreateField>
           </v-window-item>
 
           <v-window-item value="profile" v-if="registered">
