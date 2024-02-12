@@ -142,8 +142,8 @@ export default {
   data() {
     return {
       //field
-      gameName: "newgame",
-      gameDescription: "newrules",
+      gameName: null,
+      gameDescription: null,
       gridSize: 4,
       grid: null,
       ceil_list: new Set(),
@@ -153,28 +153,14 @@ export default {
       prizes: [],
       prize: null,
       idx: null,
-      boats: [
-        {
-          name: "AWARD1",
-          description: "award1",
-          icon_link: "../../public/trophy.jpg.avif",
-          selected: false,
-          used: false,
-          id: 0,
-        },
-        {
-          name: "Cruiser",
-          description: "cruiser",
-          icon_link: "../../public/cruiser.png",
-          selected: false,
-          used: false,
-          id: 0,
-        },
-      ],
+      boats: [],
       //save
       sended: false,
       code: null,
     };
+  },
+  mounted() {
+    this.getPrizes();
   },
   watch: {
     tab() {
@@ -304,9 +290,6 @@ export default {
         if (i != index) this.boats[i].selected = false;
     },
     async Save() {
-      console.log("grid is saved: ");
-      for (let cell of this.ceil_list) console.log(cell);
-
       this.error = null;
       this.response = null;
 

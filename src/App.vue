@@ -11,11 +11,16 @@
 
         <div v-if="registered">
           <v-tab value="joingame" v-if="localData.role == 'user'">
-            <v-icon start icon="mdi-controller"></v-icon>Join Game</v-tab
-          >
+            <v-icon start icon="mdi-controller"></v-icon>Join Game
+          </v-tab>
+          <v-tab value="game" v-if="localData.role == 'user' && visible">
+            <v-icon start icon="mdi-ferry"></v-icon>Game
+          </v-tab>
+
           <v-tab value="gamehistory" v-if="localData.role == 'admin' && false">
             Game History
           </v-tab>
+
           <v-tab value="manageprizes" v-if="localData.role == 'admin'">
             <v-icon start icon="mdi-trophy-variant"></v-icon>Manage Prizes
           </v-tab>
@@ -50,7 +55,13 @@
           </v-window-item>
 
           <v-window-item value="joingame" v-if="localData.role == 'user'">
-            <JoinGame></JoinGame>
+            <JoinGame @redirect="onRedirect"></JoinGame>
+          </v-window-item>
+          <v-window-item
+            value="game"
+            v-if="localData.role == 'user' && visible"
+          >
+            <Game :tab="tab"></Game>
           </v-window-item>
 
           <v-window-item value="gamehistory" v-if="localData.role == 'admin'">
@@ -94,6 +105,7 @@ import JoinGame from "./components/JoinGame.vue";
 import Placeholder from "./components/Placeholder.vue";
 import Profile from "./components/Profile.vue";
 import GameHistory from "./components/GameHistory.vue";
+import Game from "./components/Game.vue";
 import CreateField from "./components/CreateField.vue";
 import ManagePrizes from "./components/ManagePrizes.vue";
 
@@ -106,6 +118,7 @@ export default {
     Profile,
     JoinGame,
     GameHistory,
+    Game,
     CreateField,
     ManagePrizes,
   },
@@ -118,11 +131,15 @@ export default {
       localData: {
         role: null,
       },
+      //user
+      code: null,
+      //dev
+      visible: true,
     };
   },
   watch: {
     tab() {
-      //console.log(this.tab);
+      //console.log("APP:", this.tab);
     },
   },
   methods: {
@@ -135,8 +152,8 @@ export default {
     },
     onSignup() {
       this.registered = true;
-      this.tab = "about";
       this.localData = this.parseJwt(localStorage.token).sub;
+      this.tab = "about";
     },
     logout() {
       this.registered = false;
@@ -148,6 +165,7 @@ export default {
     },
     onRedirect(data) {
       this.tab = data.tab;
+      this.code = data.code;
     },
   },
 };

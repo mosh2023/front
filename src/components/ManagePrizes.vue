@@ -129,13 +129,9 @@ export default {
       prizes: [],
     };
   },
-  watch: {
-    tab() {
-      if (this.tab == "manageprizes") {
-        this.prizes.splice(0, this.prizes.length);
-        this.getPrizes();
-      }
-    },
+  mounted() {
+    this.prizes.splice(0, this.prizes.length);
+    this.getPrizes();
   },
   methods: {
     parseJwt(token) {
@@ -166,6 +162,9 @@ export default {
         for (let i of this.response.data) {
           if (i.icon_link != null)
             i.icon_link = "http://localhost:" + i.icon_link.slice(10);
+          else {
+            i.icon_link = "../../public/cruiser.png";
+          }
           this.prizes[this.prizes.length] = i;
         }
       }
@@ -225,7 +224,7 @@ export default {
       this.response = null;
       this.error = null;
 
-      console.log(index, this.prizes[index].id);
+      //console.log(index, this.prizes[index].id);
 
       let token = localStorage.token;
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

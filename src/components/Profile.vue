@@ -46,14 +46,24 @@
         </div>
         <br />
         <div class="d-flex justify-center">
-          <v-card variant="tonal" width="100%" title="Awards">
-            <v-row class="mb-1">
-              <v-col>
-                <div class="d-flex justify-center">
-                  <!--<Award></Award>-->
+          <v-card variant="outlined" color="grey" width="100%" title="Awards">
+            <div class="d-flex justify-center">
+              <v-row align="start" class="ma-3">
+                <div
+                  class="d-flex justify-center"
+                  v-for="(item, index) in prizes"
+                  v-bind:key="index"
+                >
+                  <v-col>
+                    <div class="d-flex justify-center">
+                      <v-card>
+                        <Award :data="item"></Award>
+                      </v-card>
+                    </div>
+                  </v-col>
                 </div>
-              </v-col>
-            </v-row>
+              </v-row>
+            </div>
           </v-card>
         </div>
       </v-card>
@@ -72,6 +82,21 @@ export default {
       localData: this.data,
       img: "/public/default-avatar.png.webp",
       show: false,
+      //
+      prizes: [
+        {
+          name: "AWARD1",
+          description: "award1",
+          icon_link: "../../public/trophy.jpg.avif",
+          id: 0,
+        },
+        {
+          name: "Cruiser",
+          description: "cruiser",
+          icon_link: "../../public/cruiser.png",
+          id: 0,
+        },
+      ],
     };
   },
 };

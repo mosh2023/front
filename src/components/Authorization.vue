@@ -126,9 +126,9 @@ export default {
   data() {
     return {
       //data
-      username: "testuser",
-      password: "testuser",
-      verifypassword: "testuser",
+      username: null,
+      password: null,
+      verifypassword: null,
       account: "user",
       //api
       response: null,
