@@ -6,11 +6,11 @@
           color="primary"
           v-model="mode"
           true-value="Register"
-          false-value="Sign Up"
+          false-value="Sign In"
           :label="`${mode}`"
         ></v-switch>
       </div>
-      <v-form @submit.prevent="signup" v-if="mode == 'Sign Up'">
+      <v-form @submit.prevent="signup" v-if="mode == 'Sign In'">
         <v-text-field
           class="mb-2"
           clearable
@@ -50,7 +50,7 @@
           type="submit"
           variant="elevated"
         >
-          Sign Up
+          Sign In
         </v-btn>
       </v-form>
 
@@ -127,14 +127,14 @@ export default {
     return {
       //data
       username: "testuser",
-      password: "strongpassword",
-      verifypassword: "strongpassword",
+      password: "testuser",
+      verifypassword: "testuser",
       account: "user",
       //api
       response: null,
       error: null,
       //settings
-      mode: "Sign Up",
+      mode: "Sign In",
       invalidData: false,
       errorMessage: "",
       show: false,
@@ -161,22 +161,15 @@ export default {
           .post("http://localhost:5002/v1/token", data)
           .then((response) => (this.response = response))
           .catch((error) => (this.error = error));
-          
+
         if (this.error != null) {
           this.invalidData = true;
-          if (this.error.message == "Request failed with status code 401") {
-            this.errorMessage = "Unauthorized user";
-          } else {
-            this.errorMessage = "Incorrect Username or Password";
-          }
+          this.errorMessage = "Incorrect Username or Password";
         } else {
           this.invalidData = false;
           localStorage.token = this.response.data.access_token;
 
-          this.$emit("signup", {
-            // костыль, придумать как убрать
-            registered: true,
-          });
+          this.$emit("signup");
         }
       } else {
         this.invalidData = true;
@@ -209,6 +202,9 @@ export default {
             this.errorMessage = "User already exists";
           } else {
             this.invalidData = false;
+            this.error = null;
+
+            let id = this.response.data.id;
 
             //token
             let data = new URLSearchParams();
@@ -222,15 +218,29 @@ export default {
 
             if (this.error != null) {
               this.invalidData = true;
-              this.errorMessage = "Unexpected error has occured";
+              this.errorMessage =
+                "Unexpected error has occured on authorization";
             } else {
               this.invalidData = false;
-              localStorage.token = this.response.data.access_token;
+              this.error = null;
 
-              this.$emit("signup", {
-                // костыль, придумать как убрать
-                registered: true,
-              });
+              let token = this.response.data.access_token;
+              localStorage.token = token;
+
+              axios.defaults.headers.common[
+                "Authorization"
+              ] = `Bearer ${token}`;
+
+              //create user
+              await axios
+                .post("http://localhost:5002/v1/user", {
+                  auth_id: id,
+                  name: this.username,
+                })
+                .then((response) => (this.response = response))
+                .catch((error) => (this.error = error));
+
+              this.$emit("signup");
             }
           }
         } else {
