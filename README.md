@@ -1,4 +1,9 @@
-# base
+# Project launch
+
+1. Преименовать .env.example в .env
+
+## Production
+1. Прописать команду `docker-compose up --build -d`
 
 ## Project setup
 
