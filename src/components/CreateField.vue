@@ -92,12 +92,9 @@
                 >
 
                 <br />
-                <div v-if="sended">
-                  <v-alert
-                    color="success"
-                    icon="$success"
-                    title="The field is saved"
-                    >Your invitation code is {{ code }}
+                <div v-if="visible">
+                  <v-alert :color="color" :icon="icon" :title="title"
+                    >{{ msg }}
                   </v-alert>
                   <br />
                 </div>
@@ -144,7 +141,7 @@ export default {
       //field
       gameName: null,
       gameDescription: null,
-      gridSize: 4,
+      gridSize: null,
       grid: null,
       ceil_list: new Set(),
       width_height: "100px",
@@ -155,8 +152,11 @@ export default {
       idx: null,
       boats: [],
       //save
-      sended: false,
-      code: null,
+      visible: true,
+      color: "success",
+      icon: "$success",
+      title: null,
+      msg: null,
     };
   },
   mounted() {
@@ -191,23 +191,16 @@ export default {
         .then((response) => (this.response = response))
         .catch((error) => (this.error = error));
 
-      if (this.error != null) {
-        console.log("An error has occured on getPrizes");
-      } else {
-        //this.prizes = this.response.data;
+      if (this.error == null && this.response.status == 200) {
         this.prize_names.splice(0, this.prize_names.length);
         this.prizes.splice(0, this.prizes.length);
 
         for (let i of this.response.data) {
           this.prize_names[this.prize_names.length] = i.name;
-
-          if (i.icon_link != null)
-            i.icon_link = "http://localhost:" + i.icon_link.slice(10);
-          else {
-            i.icon_link = "../../public/cruiser.png";
-          }
           this.prizes[this.prizes.length] = i;
         }
+      } else {
+        console.log("An error has occured on getPrizes");
       }
     },
     generateGrid() {
@@ -248,6 +241,7 @@ export default {
     },
     async CreateBoat() {
       if (this.prize != null) {
+        this.visible = false;
         this.error = null;
         this.response = null;
 
@@ -263,9 +257,8 @@ export default {
           .then((response) => (this.response = response))
           .catch((error) => (this.error = error));
 
-        if (this.error != null) {
-          console.log(this.error);
-        } else {
+        if (this.error == null && this.response.status == 200) {
+          this.visible = false;
           this.boats[this.boats.length] = {
             name: selectedPrize.name,
             description: selectedPrize.description,
@@ -275,7 +268,20 @@ export default {
             prize_id: selectedPrize.id,
             id: this.response.data.id,
           };
+        } else {
+          this.visible = true;
+          this.title = "Error";
+          this.color = "warning";
+          this.icon = "$warning";
+          this.msg =
+            "An error has occured: This prize was already used to create another boat";
         }
+      } else {
+        this.visible = true;
+        this.title = "Error";
+        this.color = "warning";
+        this.icon = "$warning";
+        this.msg = "Prize is not selected";
       }
     },
     select(index) {
@@ -290,48 +296,72 @@ export default {
         if (i != index) this.boats[i].selected = false;
     },
     async Save() {
-      this.error = null;
-      this.response = null;
+      this.visible = false;
+      if (
+        this.grid != null &&
+        this.gameName != null &&
+        this.gameDescription != null
+      ) {
+        this.error = null;
+        this.response = null;
 
-      let token = localStorage.token;
-      let admin_id = this.parseJwt(token).sub.id;
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        let token = localStorage.token;
+        let admin_id = this.parseJwt(token).sub.id;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      await axios
-        .post("http://localhost:5002/v1/game", {
-          name: this.gameName,
-          description: this.gameDescription,
-          board_size: this.gridSize,
-          admin_id: admin_id,
-        })
-        .then((response) => (this.response = response))
-        .catch((error) => (this.error = error));
+        await axios
+          .post("http://localhost:5002/v1/game", {
+            name: this.gameName,
+            description: this.gameDescription,
+            board_size: this.gridSize,
+            admin_id: admin_id,
+          })
+          .then((response) => (this.response = response))
+          .catch((error) => (this.error = error));
 
-      if (this.error != null) {
-        console.log("An errror has occured");
-      } else {
-        let code = this.response.data.key;
-        let id = this.response.data.id;
+        if (this.error == null && this.response.status == 200) {
+          let code = this.response.data.key;
+          let id = this.response.data.id;
 
-        for (let cell of this.ceil_list) {
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-          await axios
-            .put("http://localhost:5002/v1/game/boat/place", {
-              boat_id: this.boats[cell.boat_idx].id,
-              game_id: id,
-              x: cell.colIndex,
-              y: cell.rowIndex,
-            })
-            .then((response) => (this.response = response))
-            .catch((error) => (this.error = error));
-        }
+          for (let cell of this.ceil_list) {
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            await axios
+              .put("http://localhost:5002/v1/game/boat/place", {
+                boat_id: this.boats[cell.boat_idx].id,
+                game_id: id,
+                x: cell.colIndex,
+                y: cell.rowIndex,
+              })
+              .then((response) => (this.response = response))
+              .catch((error) => (this.error = error));
+          }
 
-        if (this.error != null) {
-          console.log("An errror has occured");
+          if (this.error == null && this.response.status == 200) {
+            this.visible = true;
+            this.color = "success";
+            this.icon = "$success";
+            this.title = "The field is saved";
+            this.msg = "Your invitation code is: " + code;
+          } else {
+            this.visible = true;
+            this.title = "Error";
+            this.color = "warning";
+            this.icon = "$warning";
+            this.msg = "An error has occured";
+          }
         } else {
-          this.sended = true;
-          this.code = code;
+          this.visible = true;
+          this.title = "Error";
+          this.color = "warning";
+          this.icon = "$warning";
+          this.msg = "An error has occured";
         }
+      } else {
+        this.visible = true;
+        this.title = "Error";
+        this.color = "warning";
+        this.icon = "$warning";
+        this.msg = "You need to fill in all fields";
       }
     },
   },

@@ -67,8 +67,8 @@
                     <v-col>
                       <div class="d-flex justify-center">
                         <v-card>
-                          <Award :data="item"></Award>
                           <div class="ma-4">
+                            <Award :data="item"></Award>
                             <v-btn
                               block
                               size="large"
@@ -114,8 +114,8 @@ export default {
   data() {
     return {
       // add prize
-      prize_name: "prize",
-      prize_description: "prize",
+      prize_name: null,
+      prize_description: null,
       prize_img: null,
       //info
       visible: false,
@@ -155,18 +155,10 @@ export default {
         .then((response) => (this.response = response))
         .catch((error) => (this.error = error));
 
-      if (this.error != null) {
-        console.log("An error has occured on getPrizes");
+      if (this.error == null && this.response.status == 200) {
+        this.prizes = this.response.data;
       } else {
-        //this.prizes = this.response.data;
-        for (let i of this.response.data) {
-          if (i.icon_link != null)
-            i.icon_link = "http://localhost:" + i.icon_link.slice(10);
-          else {
-            i.icon_link = "../../public/cruiser.png";
-          }
-          this.prizes[this.prizes.length] = i;
-        }
+        console.log("An error has occured on getPrizes");
       }
     },
     async addPrize() {
@@ -189,42 +181,38 @@ export default {
       let id = this.response.data.id;
 
       this.visible = true;
-      if (this.error != null) {
-        this.color = "warning";
-        this.icon = "$warning";
-        this.msg = "An error has occured";
-      } else {
-        /*
+      if (this.error == null && this.response.status == 200) {
         const form = new FormData();
         form.append("prize_id", id);
-        form.append("file", this.prize_img);
+        form.append("file", this.prize_img[0]);
 
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         await axios
           .post("http://localhost:5002/v1/prize/upload", form)
           .then((response) => (this.response = response))
           .catch((error) => (this.error = error));
-        */
 
-        if (this.error != null) {
-          this.color = "warning";
-          this.icon = "$warning";
-          this.msg = "An error has occured";
-        } else {
+        if (this.error == null && this.response.status == 200) {
           this.color = "success";
           this.icon = "$success";
           this.msg = "New prize is created";
 
           this.prizes.splice(0, this.prizes.length);
           this.getPrizes();
+        } else {
+          this.color = "warning";
+          this.icon = "$warning";
+          this.msg = "An error has occured";
         }
+      } else {
+        this.color = "warning";
+        this.icon = "$warning";
+        this.msg = "An error has occured";
       }
     },
     async DeletePrize(index) {
       this.response = null;
       this.error = null;
-
-      //console.log(index, this.prizes[index].id);
 
       let token = localStorage.token;
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -235,14 +223,14 @@ export default {
         .then((response) => (this.response = response))
         .catch((error) => (this.error = error));
 
-      if (this.error != null) {
+      if (this.error == null && this.response.status == 200) {
+        this.prizes.splice(0, this.prizes.length);
+        this.getPrizes();
+      } else {
         this.visible = true;
         this.color = "warning";
         this.icon = "$warning";
         this.msg = "An error has occured";
-      } else {
-        this.prizes.splice(0, this.prizes.length);
-        this.getPrizes();
       }
     },
   },
