@@ -48,7 +48,6 @@ export default {
         localStorage.key = this.code;
         this.$emit("redirect", {
           tab: "game",
-          code: this.code,
         });
       }
     },

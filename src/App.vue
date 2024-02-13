@@ -131,8 +131,6 @@ export default {
       localData: {
         role: null,
       },
-      //user
-      code: null,
       //dev
       visible: true,
     };
@@ -165,7 +163,6 @@ export default {
     },
     onRedirect(data) {
       this.tab = data.tab;
-      this.code = data.code;
     },
   },
 };
